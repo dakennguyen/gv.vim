@@ -109,7 +109,7 @@ function! s:open_jump(visual, ...)
     nnoremap <silent> <buffer> gb :GBrowse<cr>
   elseif type == 'diff'
     call s:fill(target)
-    setf diff
+    setf git
   endif
   nnoremap <silent> <buffer> q :close<cr>
   let bang = a:0 ? '!' : ''
