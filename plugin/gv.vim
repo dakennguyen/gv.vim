@@ -44,7 +44,7 @@ function! s:browse(url)
 endfunction
 
 function! s:tabnew()
-  execute (tabpagenr()-1).'tabnew'
+  execute 'tabnew'
 endfunction
 
 function! s:gbrowse()
@@ -93,7 +93,7 @@ function! s:split(tab)
   let w:gv = 1
 endfunction
 
-function! s:open(visual, ...)
+function! s:open_jump(visual, ...)
   let [type, target] = s:type(a:visual)
 
   if empty(type)
@@ -115,6 +115,14 @@ function! s:open(visual, ...)
   let bang = a:0 ? '!' : ''
   if exists('#User#GV'.bang)
     execute 'doautocmd <nomodeline> User GV'.bang
+  endif
+endfunction
+
+function! s:open(visual, ...)
+  if a:0
+    call s:open_jump(a:visual, a:000)
+  else
+    call s:open_jump(a:visual)
   endif
   wincmd p
   echo
@@ -149,6 +157,19 @@ function! s:maps()
   nmap              <buffer> <C-p> [[o
   xmap              <buffer> <C-n> ]]ogv
   xmap              <buffer> <C-p> [[ogv
+
+  nnoremap <silent> <buffer> <leader>gx :call <sid>gbrowse()<cr>
+  nnoremap <silent> <buffer> p          :call <sid>open(0)<cr>
+  nnoremap <silent> <buffer> <c-v>      :call <sid>open_jump(0)<cr>
+  nnoremap <silent> <buffer> <c-t>      :call <sid>open_jump(0, 1)<cr>
+  nnoremap <silent> <buffer> <expr> ]c <sid>move('')
+  nnoremap <silent> <buffer> <expr> [c <sid>move('b')
+
+  xnoremap <silent> <buffer> p          :<c-u>call <sid>open(1)<cr>
+  xnoremap <silent> <buffer> <c-v>      :<c-u>call <sid>open_jump(1)<cr>
+  xnoremap <silent> <buffer> <c-t>      :<c-u>call <sid>open_jump(1, 1)<cr>
+  xnoremap <silent> <buffer> <expr> ]c <sid>move('')
+  xnoremap <silent> <buffer> <expr> [c <sid>move('b')
 endfunction
 
 function! s:setup(git_origin)
