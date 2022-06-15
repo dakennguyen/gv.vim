@@ -118,6 +118,24 @@ function! s:open_jump(visual, ...)
   endif
 endfunction
 
+function! s:type_cherry(visual)
+  if a:visual
+    let shas = filter(map(getline("'<", "'>"), 'gv#sha(v:val)'), '!empty(v:val)')
+    if len(shas) < 2
+      return [0, 0]
+    endif
+    return 'Git cherry-pick ' .. shas[-1] .. '^..' .. shas[0]
+  endif
+
+  let sha = gv#sha()
+  return 'Git cherry-pick ' .. sha
+endfunction
+
+function! s:cherry_pick_jump(visual, ...)
+  let target = s:type_cherry(a:visual)
+  execute(target)
+endfunction
+
 function! s:open(visual, ...)
   if a:0
     call s:open_jump(a:visual, a:000)
@@ -160,12 +178,14 @@ function! s:maps()
 
   nnoremap <silent> <buffer> <leader>gx :call <sid>gbrowse()<cr>
   nnoremap <silent> <buffer> p          :call <sid>open(0)<cr>
+  nnoremap <silent> <buffer> cp         :call <sid>cherry_pick_jump(0)<cr>
   nnoremap <silent> <buffer> <c-v>      :call <sid>open_jump(0)<cr>
   nnoremap <silent> <buffer> <c-t>      :call <sid>open_jump(0, 1)<cr>
   nnoremap <silent> <buffer> <expr> ]c <sid>move('')
   nnoremap <silent> <buffer> <expr> [c <sid>move('b')
 
   xnoremap <silent> <buffer> p          :<c-u>call <sid>open(1)<cr>
+  xnoremap <silent> <buffer> cp         :<c-u>call <sid>cherry_pick_jump(1)<cr>
   xnoremap <silent> <buffer> <c-v>      :<c-u>call <sid>open_jump(1)<cr>
   xnoremap <silent> <buffer> <c-t>      :<c-u>call <sid>open_jump(1, 1)<cr>
   xnoremap <silent> <buffer> <expr> ]c <sid>move('')
